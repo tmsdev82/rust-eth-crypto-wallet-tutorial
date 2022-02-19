@@ -8,7 +8,7 @@ use std::io::BufWriter;
 use std::str::FromStr;
 use std::{fs::OpenOptions, io::BufReader};
 use tiny_keccak::keccak256;
-use web3::types::Address;
+use web3::{ethabi::ethereum_types::Secret, types::Address};
 
 pub fn generate_keypair() -> (SecretKey, PublicKey) {
     let secp = secp256k1::Secp256k1::new();
@@ -26,16 +26,16 @@ pub fn public_key_address(public_key: &PublicKey) -> Address {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Wallet {
-    pub private_key: String,
+    pub secret_key: String,
     pub public_key: String,
     pub public_address: String,
 }
 
 impl Wallet {
-    pub fn new(private_key: &SecretKey, public_key: &PublicKey) -> Self {
+    pub fn new(secret_key: &SecretKey, public_key: &PublicKey) -> Self {
         let addr: Address = public_key_address(&public_key);
         Wallet {
-            private_key: format!("{}", private_key.to_string()),
+            secret_key: format!("{}", secret_key.to_string()),
             public_key: public_key.to_string(),
             public_address: format!("{:?}", addr),
         }
