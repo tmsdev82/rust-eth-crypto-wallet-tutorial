@@ -29,8 +29,8 @@ async fn main() -> Result<()> {
     let block_number = web3_con.eth().block_number().await?;
     println!("block number: {}", &block_number);
 
-    let balance = loaded_wallet.get_balance(&web3_con).await?;
-    println!("wallet balance: {}", &balance);
+    let balance = loaded_wallet.get_balance_in_eth(&web3_con).await?;
+    println!("wallet balance: {} eth", &balance);
 
     Ok(())
 }

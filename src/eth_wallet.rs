@@ -82,6 +82,14 @@ impl Wallet {
 
         Ok(balance)
     }
+
+    pub async fn get_balance_in_eth(
+        &self,
+        web3_connection: &Web3<transports::WebSocket>,
+    ) -> Result<f64> {
+        let wei_balance = self.get_balance(web3_connection).await?;
+        Ok(utils::wei_to_eth(wei_balance))
+    }
 }
 
 pub async fn establish_web3_connection(url: &str) -> Result<Web3<transports::WebSocket>> {
