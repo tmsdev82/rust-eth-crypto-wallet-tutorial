@@ -11,7 +11,7 @@ use std::{fs::OpenOptions, io::BufReader};
 use tiny_keccak::keccak256;
 use web3::{
     transports,
-    types::{Address, U256},
+    types::{Address, TransactionParameters, H256, U256},
     Web3,
 };
 
@@ -95,4 +95,29 @@ impl Wallet {
 pub async fn establish_web3_connection(url: &str) -> Result<Web3<transports::WebSocket>> {
     let transport = transports::WebSocket::new(url).await?;
     Ok(Web3::new(transport))
+}
+
+pub fn create_eth_transaction(to: Address, eth_value: f64) -> TransactionParameters {
+    TransactionParameters {
+        to: Some(to),
+        value: utils::eth_to_wei(eth_value),
+        ..Default::default()
+    }
+}
+
+pub async fn sign_and_send(
+    web3: &Web3<transports::WebSocket>,
+    transaction: TransactionParameters,
+    secret_key: &SecretKey,
+) -> Result<H256> {
+    let signed = web3
+        .accounts()
+        .sign_transaction(transaction, secret_key)
+        .await?;
+
+    let transaction_result = web3
+        .eth()
+        .send_raw_transaction(signed.raw_transaction)
+        .await?;
+    Ok(transaction_result)
 }
