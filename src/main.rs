@@ -1,5 +1,6 @@
 use anyhow::Result;
 mod eth_wallet;
+mod utils;
 fn main() -> Result<()> {
     let (secret_key, pub_key) = eth_wallet::generate_keypair();
 
