@@ -9,7 +9,11 @@ use std::io::BufWriter;
 use std::str::FromStr;
 use std::{fs::OpenOptions, io::BufReader};
 use tiny_keccak::keccak256;
-use web3::types::Address;
+use web3::{
+    transports,
+    types::{Address, U256},
+    Web3,
+};
 
 pub fn generate_keypair() -> (SecretKey, PublicKey) {
     let secp = secp256k1::Secp256k1::new();
@@ -71,4 +75,16 @@ impl Wallet {
         let pub_key = PublicKey::from_str(&self.public_key)?;
         Ok(pub_key)
     }
+
+    pub async fn get_balance(&self, web3_connection: &Web3<transports::WebSocket>) -> Result<U256> {
+        let wallet_address = Address::from_str(&self.public_address)?;
+        let balance = web3_connection.eth().balance(wallet_address, None).await?;
+
+        Ok(balance)
+    }
+}
+
+pub async fn establish_web3_connection(url: &str) -> Result<Web3<transports::WebSocket>> {
+    let transport = transports::WebSocket::new(url).await?;
+    Ok(Web3::new(transport))
 }
