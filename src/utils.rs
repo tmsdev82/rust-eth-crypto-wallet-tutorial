@@ -1,13 +1,13 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 use web3::types::U256;
 
-pub fn get_timestamp(time: SystemTime) -> u64 {
-    let since_epoch = time.duration_since(UNIX_EPOCH).unwrap();
-    since_epoch.as_secs()
-}
-
-pub fn get_current_timestamp() -> u64 {
-    get_timestamp(SystemTime::now())
+pub fn get_nstime() -> u64 {
+    let dur = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    // The correct way to calculate the current time is
+    // `dur.as_secs() * 1_000_000_000 + dur.subsec_nanos() as u64`
+    // But this is faster, and the difference in terms of entropy is
+    // negligible (log2(10^9) == 29.9).
+    dur.as_secs() << 30 | dur.subsec_nanos() as u64
 }
 
 pub fn wei_to_eth(wei_val: U256) -> f64 {
